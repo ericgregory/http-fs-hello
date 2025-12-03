@@ -5,6 +5,8 @@ use wstd::io::empty;
 use wasi::filesystem::preopens::get_directories;
 use wasi::filesystem::types::{DescriptorFlags, OpenFlags, PathFlags};
 
+mod wash_plugin;
+
 #[wstd::http_server]
 async fn main(req: Request<IncomingBody>, res: Responder) -> Finished {
     match req.uri().path_and_query().unwrap().as_str() {
