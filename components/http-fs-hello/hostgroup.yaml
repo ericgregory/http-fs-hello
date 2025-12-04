@@ -34,7 +34,7 @@ spec:
         - --data-nats-url=nats://nats:4222
         - --http-addr=0.0.0.0:9191
         - --wasi-webgpu
-        image: ghcr.io/wasmcloud/wash:2.0.0-rc.3
+        image: ghcr.io/ericgregory/custom-wash:0.1.1
         imagePullPolicy: Always
         name: host
         ports:
