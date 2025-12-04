@@ -1,4 +1,4 @@
-package component:sample-wasi-http-rust;
+package component:http-fs-hello;
 
 world http-fs {
     // Import HTTP incoming handler for serving HTTP requests

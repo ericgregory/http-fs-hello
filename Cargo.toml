@@ -1,20 +1,17 @@
-[package]
-name = "sample-wasi-http-rust"
-version = "0.0.0"
-edition = "2024"
-publish = false
+[workspace]
+resolver = "3"
+members = ["crates/*"]
 
-[lib]
-crate-type = ["cdylib"]
+[workspace.dependencies]
+anyhow = { version = "1", default-features = false }
+bytes = { version = "1.11.0", default-features = false }
+reqwest = { version = "0.12.24", default-features = false }
+semver = { version = "1.0.27", default-features = false }
+tempfile = { version = "3.23.0", default-features = false }
+tokio = { version = "1.48.0", default-features = false }
+tracing = { version = "0.1.43", default-features = false }
+tracing-subscriber = { version = "0.3.22", default-features = false }
+uuid = { version = "1.19.0", default-features = false }
 
-[package.metadata.component]
-package = "component:sample-wasi-http-rust"
-# Using custom world that includes both HTTP and filesystem
-target = { path = "wit", world = "http-fs" }
-
-[dependencies]
-wit-bindgen-rt = { version = "0.41.0", features = ["bitflags"] }
-wstd = "0.5.4"
-wasi = "0.14.0"
-wit-bindgen = { version = "0.47.0", features = ["macros"] }
-anyhow = { version = "1.0.100", default-features = false }
+wash-runtime = { git = "https://github.com/wasmCloud/wash", rev = "530118278857178b6ee34080ed67133f34293127" }
+wash = { git = "https://github.com/wasmCloud/wash", rev = "530118278857178b6ee34080ed67133f34293127" }

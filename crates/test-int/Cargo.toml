@@ -1,0 +1,32 @@
+[package]
+name = "test-int"
+version = "0.0.0"
+description = """
+Crate that holds Integration tests for the http-fs-hello component
+"""
+
+edition = "2024"
+
+[lib]
+
+[build-dependencies]
+tokio = { workspace = true, features = [
+  "macros",
+  "rt-multi-thread",
+  "process",
+  "fs",
+] }
+anyhow = { workspace = true }
+
+[dev-dependencies]
+wash-runtime = { workspace = true }
+anyhow = { workspace = true }
+wash = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true, features = [ "v7" ] }
+tempfile = { workspace = true }
+semver = { workspace = true }
+bytes = { workspace = true }
+reqwest = { workspace = true }

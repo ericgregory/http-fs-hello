@@ -1,0 +1,17 @@
+[package]
+name = "http-fs-hello"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[workspace] # Exclude this project from the outer workspace
+
+[dependencies]
+wit-bindgen-rt = { version = "0.41.0", features = ["bitflags"] }
+wstd = "0.5.4"
+wasi = "0.14.0"
+wit-bindgen = { version = "0.47.0", features = ["macros"] }
+anyhow = { version = "1.0.100", default-features = false }
