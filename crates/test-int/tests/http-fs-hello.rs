@@ -161,7 +161,7 @@ async fn test_int_http_fs_hello_component() -> Result<()> {
         .text()
         .await
         .context("failed to get response body")?;
-    info!(home_resp_body, "received HTTP response from /");
+    info!(body = home_resp_body, "received HTTP response from /");
     assert_eq!(home_resp_body, "Hello!\n");
 
     // Test the read-file (/read-file) endpoint
@@ -182,7 +182,10 @@ async fn test_int_http_fs_hello_component() -> Result<()> {
         .text()
         .await
         .context("failed to get response body")?;
-    info!(read_file_resp_body, "received HTTP response from /read-file");
+    info!(
+        body = read_file_resp_body,
+        "received HTTP response from /read-file"
+    );
     assert_eq!(read_file_resp_body, randomized_text_content);
 
     Ok(())
