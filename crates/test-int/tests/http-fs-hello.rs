@@ -11,13 +11,14 @@ use std::{collections::HashMap, net::SocketAddr, sync::Arc, time::Duration};
 
 use anyhow::{Context as _, Result, ensure};
 use tokio::time::timeout;
-use tracing::debug;
+use tracing::{debug, info};
 
 use wash_runtime::engine::Engine;
 use wash_runtime::host::http::{DevRouter, HttpServer};
 use wash_runtime::host::{HostApi, HostBuilder};
 use wash_runtime::types::{
-    Component, HostPathVolume, LocalResources, Volume, VolumeType, Workload, WorkloadStartRequest,
+    Component, HostPathVolume, LocalResources, Volume, VolumeMount, VolumeType, Workload,
+    WorkloadStartRequest,
 };
 use wash_runtime::wit::WitInterface;
 
@@ -71,6 +72,17 @@ async fn test_int_http_fs_hello_component() -> Result<()> {
         http_fs_dir.path().display()
     );
 
+    let randomized_text_content = format!(
+        "text content, with a random UUID: {}",
+        uuid::Uuid::now_v7().to_string()
+    );
+    tokio::fs::write(
+        http_fs_dir.path().join("sample.txt"),
+        &randomized_text_content,
+    )
+    .await
+    .context("failed to write sample text file")?;
+
     // Create a workload with BOTH components:
     let req = WorkloadStartRequest {
         workload_id: uuid::Uuid::now_v7().to_string(),
@@ -84,6 +96,11 @@ async fn test_int_http_fs_hello_component() -> Result<()> {
                 local_resources: LocalResources {
                     memory_limit_mb: 256,
                     cpu_limit: 2,
+                    volume_mounts: vec![VolumeMount {
+                        name: "data".into(),
+                        mount_path: "/data".into(),
+                        read_only: true,
+                    }],
                     ..Default::default()
                 },
                 ..Default::default() // pool_size: 2,
@@ -110,7 +127,6 @@ async fn test_int_http_fs_hello_component() -> Result<()> {
                     config: HashMap::new(),
                 },
             ],
-            // Volume for blobstore-filesystem to use
             volumes: vec![Volume {
                 name: "data".to_string(),
                 volume_type: VolumeType::HostPath(HostPathVolume {
@@ -125,22 +141,52 @@ async fn test_int_http_fs_hello_component() -> Result<()> {
         .await
         .context("Failed to start workload with component linking")?;
 
-    // Trigger the component via a HTTP request
     let client = reqwest::Client::new();
-    let get_resp = timeout(
+
+    // Test the root (/) endoint endpoint
+    let home_resp = timeout(
         Duration::from_secs(10),
         client.get(format!("http://{addr}/")).send(),
     )
     .await
     .context("request timed out")?
     .context("request failed")?;
-    ensure!(get_resp.status().is_success(), "response succeeded");
 
-    let resp_body = get_resp
+    ensure!(
+        home_resp.status().is_success(),
+        "response should have succeeded"
+    );
+
+    let home_resp_body = home_resp
         .text()
         .await
         .context("failed to get response body")?;
-    assert_eq!(resp_body, "Hello!\n");
+    info!(body = home_resp_body, "received HTTP response from /");
+    assert_eq!(home_resp_body, "Hello!\n");
+
+    // Test the read-file (/read-file) endpoint
+    let read_file_resp = timeout(
+        Duration::from_secs(10),
+        client.get(format!("http://{addr}/read-file")).send(),
+    )
+    .await
+    .context("request timed out")?
+    .context("request failed")?;
+
+    ensure!(
+        read_file_resp.status().is_success(),
+        "response should have succeeded"
+    );
+
+    let read_file_resp_body = read_file_resp
+        .text()
+        .await
+        .context("failed to get response body")?;
+    info!(
+        body = read_file_resp_body,
+        "received HTTP response from /read-file"
+    );
+    assert_eq!(read_file_resp_body, randomized_text_content);
 
     Ok(())
 }
