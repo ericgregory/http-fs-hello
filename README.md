@@ -1,35 +1,23 @@
-# HTTP Filesystem Demo
+# `http-fs-hello`, with wasmCloud v2
 
-WIP
+This repository contains a WebAssembly component built using recent Rust ecosystem tooling
+like [`wstd`][wstd] to serve HTTP requests via [wasmCloud v2][wasmcloud-v2] (i.e. `wash`
+and `wash-runtime`).
 
-## Testing
+[wstd]: https://github.com/bytecodealliance/wstd
+[wasmcloud-v2]: https://github.com/wasmcloud/wash
 
-Start `kind` cluster from root of this directory with included kind config:
+# Quickstart
 
-```shell
-kind create cluster --config=kind-config.yaml
+To build just the component:
+
+```console
+just build
 ```
 
-Install wasmCloud operator:
+To run the integration tests which start a custom wasmCloud runtime, and a
+workload that contains the components:
 
-```shell
-helm install wasmcloud --version 0.1.0 oci://ghcr.io/wasmcloud/charts/runtime-operator -f https://raw.githubusercontent.com/wasmCloud/wash/refs/heads/main/charts/runtime-operator/values.local.yaml
-```
-
-Update public-ingress host deployment with volume:
-
-```shell
-kubectl apply -f hostgroup.yaml
-```
-
-Deploy workload:
-
-```shell
-kubectl apply -f workloaddeployment.yaml
-```
-
-Test:
-
-```shell
-curl localhost/read-file -i
+```console
+RUST_LOG=debug just test-int
 ```
