@@ -11,14 +11,14 @@ spec:
       volumes:
         - name: wasmcloud-data
           hostPath:
-            path: /var/samples
+            path: /host-path/to/assets
       components:
         - name: http-fs-hello
           image: ghcr.io/ericgregory/http-fs-hello:0.1.1
           localResources:
             volumeMounts:
               - name: wasmcloud-data
-                mountPath: /data
+                mountPath: /assets
       hostInterfaces:
         - namespace: wasi
           package: http
@@ -26,7 +26,3 @@ spec:
             - incoming-handler
           config:
             host: localhost
-        - namespace: wasmcloud
-          package: wash
-          interfaces:
-            - types
